@@ -1,59 +1,72 @@
-
 import json
-from bkt_model import StudentModel, BKTParams
-from gap_detector import GapDetector, ResponseEvent
-from recommender import build_student_recommendations
+from bkt_model import StudentModel, ResponseInput
+from prerequisite_graph import PrerequisiteGraph
+from adaptive_recommender import build_adaptive_recommendations
+from explainability import build_explanations
 
-# ---- 1. Simulated quiz response log (would come from real quiz data) ----
-# Each tuple: (concept, correct, time_taken_seconds, attempt_number, hints_used)
-simulated_responses = [
-    ("loops", True, 20, 1, 0),
-    ("loops", True, 18, 1, 0),
-    ("arrays", True, 25, 1, 0),
-    ("arrays", False, 40, 1, 0),
-    ("recursion", False, 55, 1, 1),
-    ("recursion", False, 60, 2, 1),
-    ("recursion_base_case", False, 70, 1, 2),
-    ("recursion_base_case", False, 65, 2, 2),
-    ("recursion_base_case", True, 50, 3, 1),
-]
+PREREQ_EDGES = {
+    "recursion": ["functions"],
+    "recursion_base_case": ["recursion"],
+    "arrays": ["loops"],
+}
 
-avg_time_benchmark = {
+BENCHMARK_TIME = {
+    "functions": 20,
     "loops": 20,
     "arrays": 22,
     "recursion": 30,
     "recursion_base_case": 30,
 }
 
-# ---- 2. Run through BKT model ----
+DIFFICULTY = {
+    "functions": 0.3,
+    "loops": 0.3,
+    "arrays": 0.5,
+    "recursion": 0.7,
+    "recursion_base_case": 0.8,
+}
+
+simulated_responses = [
+    ("functions", True, 18, 1),
+    ("loops", True, 19, 1),
+    ("loops", True, 17, 1),
+    ("arrays", False, 40, 1),
+    ("arrays", False, 45, 2),
+    ("recursion", False, 55, 1),
+    ("recursion", False, 60, 2),
+    ("recursion_base_case", False, 70, 1),
+    ("recursion_base_case", False, 65, 2),
+    ("recursion_base_case", True, 50, 3),
+]
+
 student = StudentModel(student_id="student_001")
-detector = GapDetector(avg_time_per_concept=avg_time_benchmark)
 
-event_log = []
-for concept, correct, t, attempt, hints in simulated_responses:
-    p_mastery = student.record_response(concept, correct)
-    event = ResponseEvent(concept, correct, t, attempt, hints)
-    risk = detector.risk_score(p_mastery, event)
-    event_log.append({
-        "concept": concept, "correct": correct, "time_s": t,
-        "attempt": attempt, "hints": hints,
-        "p_mastery_after": round(p_mastery, 3), "risk_score": risk,
-    })
+for concept, correct, t, attempt in simulated_responses:
+    r = ResponseInput(
+        correct=correct,
+        time_seconds=t,
+        benchmark_time=BENCHMARK_TIME[concept],
+        attempt_number=attempt,
+        difficulty=DIFFICULTY[concept],
+    )
+    student.record_response(concept, r)
 
-# ---- 3. Mastery report + weak concept detection ----
 report = student.mastery_report(threshold=0.85)
 weak = student.weak_concepts(threshold=0.85)
 
-# ---- 4. Recommendations for weak concepts ----
-recommendations = build_student_recommendations(weak)
+graph = PrerequisiteGraph(PREREQ_EDGES)
+root_cause = graph.root_cause_analysis(report, threshold=0.85)
 
-# ---- 5. Output (this is what feeds the dashboard in Phase 5) ----
+recommendations = build_adaptive_recommendations(weak, student.trackers)
+explanations = build_explanations(weak, student.trackers, root_cause, threshold=0.85)
+
 output = {
     "student_id": student.student_id,
     "mastery_report": report,
     "weak_concepts": weak,
+    "root_cause_analysis": root_cause,
     "recommendations": recommendations,
-    "event_log": event_log,
+    "explanations": explanations,
 }
 
 print(json.dumps(output, indent=2))
