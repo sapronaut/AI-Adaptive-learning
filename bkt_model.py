@@ -62,6 +62,10 @@ class ConceptTracker:
         self.history.append((r, self.p_L, conf))
         return self.p_L
 
+    def predict_correct(self) -> float:
+        p = self.params
+        return self.p_L * (1 - p.p_S) + (1 - self.p_L) * p.p_G
+
     def is_mastered(self, threshold: float = 0.85) -> bool:
         return self.p_L >= threshold
 
