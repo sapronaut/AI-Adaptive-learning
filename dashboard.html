@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adaptive Learning Dashboard</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --text: #1d2330;
+    --muted: #5b6578;
+    --border: #dfe3ea;
+    --accent: #1f4e79;
+    --warn-bg: #fff4e0;
+    --warn-text: #7a4a00;
+    --info-bg: #e8f0fa;
+    --info-text: #1f4e79;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151b;
+      --surface: #1b2029;
+      --text: #e6e9ef;
+      --muted: #9aa3b5;
+      --border: #2d3442;
+      --accent: #7fb2e5;
+      --warn-bg: #3a2c10;
+      --warn-text: #f2c879;
+      --info-bg: #1f2f45;
+      --info-text: #9cc6f0;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.45;
+  }
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  h1 { font-size: 1.25rem; margin: 0; }
+  h2 { font-size: 1rem; margin: 0 0 10px; }
+  .sub { color: var(--muted); font-size: 0.85rem; }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px 24px 48px; }
+  button {
+    font: inherit;
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button:hover { filter: brightness(0.96); }
+  .actions { display: flex; gap: 8px; }
+  section { margin-bottom: 26px; }
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .card.weakest { border-color: #d9534f; box-shadow: 0 0 0 1px #d9534f inset; }
+  .card .name { font-weight: 600; font-size: 0.9rem; word-break: break-word; }
+  .card .num { font-size: 1.5rem; font-weight: 700; margin: 2px 0; }
+  .bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; }
+  .tag { display: inline-block; font-size: 0.7rem; padding: 1px 7px; border-radius: 10px; background: #d9534f; color: #fff; margin-left: 6px; }
+  .scroll { overflow-x: auto; }
+  table.heat { border-collapse: separate; border-spacing: 3px; width: 100%; min-width: 560px; }
+  table.heat th { font-size: 0.78rem; font-weight: 600; color: var(--muted); padding: 4px 6px; text-align: center; }
+  table.heat th.rowhead { text-align: left; }
+  table.heat td.name { font-size: 0.85rem; padding: 4px 8px; white-space: nowrap; cursor: pointer; }
+  table.heat td.name:hover { text-decoration: underline; }
+  table.heat tr.selected td.name { font-weight: 700; color: var(--accent); }
+  table.heat td.cell {
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+    padding: 9px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.35);
+  }
+  .legend { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 0.78rem; color: var(--muted); }
+  .legend .grad { width: 140px; height: 10px; border-radius: 5px; background: linear-gradient(to right, hsl(0 62% 45%), hsl(60 62% 45%), hsl(120 62% 38%)); }
+  .empty { text-align: center; padding: 36px 12px; color: var(--muted); }
+  .issue { border-top: 1px solid var(--border); padding: 12px 0; }
+  .issue:first-of-type { border-top: none; padding-top: 0; }
+  .issue .title { font-weight: 600; }
+  .badge { display: inline-block; font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; margin-left: 8px; vertical-align: middle; }
+  .badge.direct { background: var(--warn-bg); color: var(--warn-text); }
+  .badge.upstream { background: var(--info-bg); color: var(--info-text); }
+  .why { margin: 6px 0; color: var(--text); }
+  .rec { margin: 6px 0 0; font-size: 0.88rem; color: var(--muted); }
+  .rec strong { color: var(--text); }
+  .ok { color: var(--muted); font-size: 0.88rem; margin-top: 10px; }
+  #status { font-size: 0.82rem; color: var(--muted); min-height: 1.2em; margin-bottom: 8px; }
+  .error { color: #d9534f; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Adaptive Learning Dashboard</h1>
+    <div class="sub">Concept mastery, root causes and recommendations for a class</div>
+  </div>
+  <div class="actions">
+    <button id="demoBtn" class="primary">Load demo class</button>
+    <button id="refreshBtn">Refresh</button>
+  </div>
+</header>
+
+<main>
+  <div id="status"></div>
+
+  <section id="summarySection">
+    <h2>Concepts across the class</h2>
+    <div id="cards" class="cards"></div>
+  </section>
+
+  <section>
+    <h2>Class heatmap</h2>
+    <div class="panel">
+      <div class="scroll"><div id="heat"></div></div>
+      <div class="legend">
+        <span>0</span><span class="grad"></span><span>1</span>
+        <span id="legendNote"></span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="detailTitle">Student detail</h2>
+    <div id="detail" class="panel"><div class="empty">Click a student or a cell in the heatmap to see why concepts were flagged.</div></div>
+  </section>
+</main>
+
+<script>
+  const state = { threshold: 0.85, atRisk: 0.5, selected: null };
+
+  function el(tag, props, kids) {
+    const node = document.createElement(tag);
+    if (props) {
+      for (const k of Object.keys(props)) {
+        if (k === "class") node.className = props[k];
+        else if (k === "text") node.textContent = props[k];
+        else if (k === "style") node.setAttribute("style", props[k]);
+        else node.setAttribute(k, props[k]);
+      }
+    }
+    (kids || []).forEach((c) => node.appendChild(c));
+    return node;
+  }
+
+  function nice(name) {
+    return name.replace(/_/g, " ");
+  }
+
+  function colorFor(p) {
+    const clamped = Math.max(0, Math.min(1, p));
+    const hue = Math.round(120 * clamped);
+    const light = hue > 90 ? 36 : 44;
+    return "hsl(" + hue + " 62% " + light + "%)";
+  }
+
+  async function getJSON(url, options) {
+    const res = await fetch(url, options);
+    if (!res.ok) {
+      let detail = res.status + " " + res.statusText;
+      try { detail = (await res.json()).detail || detail; } catch (e) {}
+      throw new Error(detail);
+    }
+    return res.json();
+  }
+
+  function setStatus(msg, isError) {
+    const s = document.getElementById("status");
+    s.textContent = msg || "";
+    s.className = isError ? "error" : "";
+  }
+
+  function renderCards(summary) {
+    const box = document.getElementById("cards");
+    box.innerHTML = "";
+    const names = Object.keys(summary.concepts);
+    if (!names.length) {
+      box.appendChild(el("div", { class: "empty", text: "No data yet. Click Load demo class to see an example." }));
+      return;
+    }
+    names.forEach((c) => {
+      const info = summary.concepts[c];
+      const weakest = c === summary.weakest_concept;
+      const nameRow = el("div", { class: "name", text: nice(c) });
+      if (weakest) nameRow.appendChild(el("span", { class: "tag", text: "weakest" }));
+      box.appendChild(el("div", { class: "card" + (weakest ? " weakest" : "") }, [
+        nameRow,
+        el("div", { class: "num", text: info.mean_mastery.toFixed(2) }),
+        el("div", { class: "bar" }, [el("span", { style: "width:" + Math.round(info.mean_mastery * 100) + "%;background:" + colorFor(info.mean_mastery) })]),
+        el("div", { class: "sub", text: info.students_at_risk + " of " + info.students + " students at risk" }),
+        el("div", { class: "sub", text: info.students_developing + " developing, " + info.students_mastered + " mastered" }),
+      ]));
+    });
+  }
+
+  function renderHeatmap(matrix) {
+    const host = document.getElementById("heat");
+    host.innerHTML = "";
+    const ids = Object.keys(matrix.students);
+    if (!ids.length) {
+      host.appendChild(el("div", { class: "empty", text: "No students yet." }));
+      return;
+    }
+    const head = el("tr", null, [el("th", { class: "rowhead", text: "Student" })]);
+    matrix.concepts.forEach((c) => head.appendChild(el("th", { text: nice(c) })));
+    const table = el("table", { class: "heat" }, [el("thead", null, [head]), el("tbody")]);
+    const body = table.querySelector("tbody");
+    ids.forEach((sid) => {
+      const tr = el("tr", { class: sid === state.selected ? "selected" : "" });
+      const nameCell = el("td", { class: "name", text: sid });
+      nameCell.addEventListener("click", () => selectStudent(sid));
+      tr.appendChild(nameCell);
+      matrix.concepts.forEach((c) => {
+        const v = matrix.students[sid][c];
+        const cell = el("td", { class: "cell", text: v === null ? "-" : v.toFixed(2), title: sid + ", " + nice(c) });
+        cell.style.background = v === null ? "#8a93a5" : colorFor(v);
+        cell.addEventListener("click", () => selectStudent(sid));
+        tr.appendChild(cell);
+      });
+      body.appendChild(tr);
+    });
+    host.appendChild(table);
+    document.getElementById("legendNote").textContent = "Mastered at " + state.threshold + " or above, at risk below " + state.atRisk;
+  }
+
+  function renderDetail(report) {
+    const box = document.getElementById("detail");
+    box.innerHTML = "";
+    document.getElementById("detailTitle").textContent = "Student detail: " + report.student_id;
+    const weak = report.weak_concepts;
+    if (!weak.length) {
+      box.appendChild(el("div", { class: "empty", text: "No concepts are at risk for this student." }));
+    }
+    weak.forEach((c) => {
+      const rc = report.root_cause_analysis[c];
+      const rec = report.recommendations[c];
+      const p = report.mastery_report[c].p_mastery;
+      const title = el("div", { class: "title" }, [
+        el("span", { text: nice(c) + " (" + p.toFixed(2) + ")" }),
+      ]);
+      if (rc && rc.classification === "root_cause_upstream") {
+        title.appendChild(el("span", { class: "badge upstream", text: "linked to earlier gap: " + rc.weak_prerequisites.map(nice).join(", ") }));
+      } else {
+        title.appendChild(el("span", { class: "badge direct", text: "direct gap" }));
+      }
+      const issue = el("div", { class: "issue" }, [
+        title,
+        el("div", { class: "why", text: report.explanations[c] }),
+      ]);
+      if (rec && rec.resources && rec.resources.length) {
+        const r = rec.resources[0];
+        issue.appendChild(el("div", { class: "rec" }, [
+          el("span", { text: "Suggested (" + rec.learner_state + "): " }),
+          el("strong", { text: r.title }),
+          el("span", { text: " - " + r.type + ", " + r.difficulty }),
+        ]));
+      }
+      box.appendChild(issue);
+    });
+    const lines = [
+      ["Developing", report.developing.map((c) => nice(c) + " (" + report.mastery_report[c].p_mastery.toFixed(2) + ")")],
+      ["Mastered", report.mastered.map(nice)],
+      ["Not enough answers yet", report.insufficient_evidence.map(nice)],
+    ];
+    lines.forEach((pair) => {
+      if (pair[1].length) box.appendChild(el("div", { class: "ok", text: pair[0] + ": " + pair[1].join(", ") }));
+    });
+  }
+
+  async function selectStudent(sid) {
+    state.selected = sid;
+    try {
+      const report = await getJSON("/students/" + encodeURIComponent(sid) + "/report");
+      renderDetail(report);
+      document.querySelectorAll("table.heat tr").forEach((tr) => {
+        const first = tr.querySelector("td.name");
+        if (first) tr.classList.toggle("selected", first.textContent === sid);
+      });
+    } catch (e) {
+      setStatus("Could not load report: " + e.message, true);
+    }
+  }
+
+  async function refresh() {
+    try {
+      const info = await getJSON("/");
+      state.threshold = info.threshold;
+      state.atRisk = info.at_risk_threshold;
+      const matrix = await getJSON("/class/matrix");
+      let summary = { concepts: {}, weakest_concept: null };
+      if (Object.keys(matrix.students).length) summary = await getJSON("/class/summary");
+      renderCards(summary);
+      renderHeatmap(matrix);
+      setStatus(Object.keys(matrix.students).length + " students loaded");
+    } catch (e) {
+      setStatus("Could not reach the API: " + e.message, true);
+    }
+  }
+
+  document.getElementById("refreshBtn").addEventListener("click", refresh);
+  document.getElementById("demoBtn").addEventListener("click", async () => {
+    setStatus("Loading demo class...");
+    try {
+      await getJSON("/demo/seed", { method: "POST" });
+      state.selected = null;
+      await refresh();
+      selectStudent("student_03");
+    } catch (e) {
+      setStatus("Could not load demo: " + e.message, true);
+    }
+  });
+
+  refresh();
+</script>
+</body>
+</html>
