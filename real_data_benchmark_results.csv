@@ -1,0 +1,4 @@
+Metric,Standard BKT,Extended BKT (Time-Aware),Improvement
+AUC-ROC,0.9550,0.9927,+0.0377
+Log Loss,0.3139,0.2240,-0.0899
+Accuracy,0.8847,0.9571,+0.0724
