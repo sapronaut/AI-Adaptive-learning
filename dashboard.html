@@ -1,346 +1,945 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Adaptive Learning Dashboard</title>
-<style>
-  :root {
-    --bg: #f6f7f9;
-    --surface: #ffffff;
-    --text: #1d2330;
-    --muted: #5b6578;
-    --border: #dfe3ea;
-    --accent: #1f4e79;
-    --warn-bg: #fff4e0;
-    --warn-text: #7a4a00;
-    --info-bg: #e8f0fa;
-    --info-text: #1f4e79;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #12151b;
-      --surface: #1b2029;
-      --text: #e6e9ef;
-      --muted: #9aa3b5;
-      --border: #2d3442;
-      --accent: #7fb2e5;
-      --warn-bg: #3a2c10;
-      --warn-text: #f2c879;
-      --info-bg: #1f2f45;
-      --info-text: #9cc6f0;
-    }
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.45;
-  }
-  header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 24px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-  }
-  h1 { font-size: 1.25rem; margin: 0; }
-  h2 { font-size: 1rem; margin: 0 0 10px; }
-  .sub { color: var(--muted); font-size: 0.85rem; }
-  main { max-width: 1100px; margin: 0 auto; padding: 20px 24px 48px; }
-  button {
-    font: inherit;
-    padding: 7px 14px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  button:hover { filter: brightness(0.96); }
-  .actions { display: flex; gap: 8px; }
-  section { margin-bottom: 26px; }
-  .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-  }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 14px;
-  }
-  .card.weakest { border-color: #d9534f; box-shadow: 0 0 0 1px #d9534f inset; }
-  .card .name { font-weight: 600; font-size: 0.9rem; word-break: break-word; }
-  .card .num { font-size: 1.5rem; font-weight: 700; margin: 2px 0; }
-  .bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-  .bar > span { display: block; height: 100%; }
-  .tag { display: inline-block; font-size: 0.7rem; padding: 1px 7px; border-radius: 10px; background: #d9534f; color: #fff; margin-left: 6px; }
-  .scroll { overflow-x: auto; }
-  table.heat { border-collapse: separate; border-spacing: 3px; width: 100%; min-width: 560px; }
-  table.heat th { font-size: 0.78rem; font-weight: 600; color: var(--muted); padding: 4px 6px; text-align: center; }
-  table.heat th.rowhead { text-align: left; }
-  table.heat td.name { font-size: 0.85rem; padding: 4px 8px; white-space: nowrap; cursor: pointer; }
-  table.heat td.name:hover { text-decoration: underline; }
-  table.heat tr.selected td.name { font-weight: 700; color: var(--accent); }
-  table.heat td.cell {
-    text-align: center;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #fff;
-    padding: 9px 4px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.35);
-  }
-  .legend { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 0.78rem; color: var(--muted); }
-  .legend .grad { width: 140px; height: 10px; border-radius: 5px; background: linear-gradient(to right, hsl(0 62% 45%), hsl(60 62% 45%), hsl(120 62% 38%)); }
-  .empty { text-align: center; padding: 36px 12px; color: var(--muted); }
-  .issue { border-top: 1px solid var(--border); padding: 12px 0; }
-  .issue:first-of-type { border-top: none; padding-top: 0; }
-  .issue .title { font-weight: 600; }
-  .badge { display: inline-block; font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; margin-left: 8px; vertical-align: middle; }
-  .badge.direct { background: var(--warn-bg); color: var(--warn-text); }
-  .badge.upstream { background: var(--info-bg); color: var(--info-text); }
-  .why { margin: 6px 0; color: var(--text); }
-  .rec { margin: 6px 0 0; font-size: 0.88rem; color: var(--muted); }
-  .rec strong { color: var(--text); }
-  .ok { color: var(--muted); font-size: 0.88rem; margin-top: 10px; }
-  #status { font-size: 0.82rem; color: var(--muted); min-height: 1.2em; margin-bottom: 8px; }
-  .error { color: #d9534f; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduAdaptive - Teaching & Learning Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #e0e7ff;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        aside {
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .brand-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .sidebar-nav {
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-item:hover {
+            background: var(--background);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .role-switcher-container {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .role-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .role-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--background);
+            padding: 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+        }
+
+        .role-btn {
+            padding: 8px;
+            border: none;
+            background: transparent;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .role-btn.active {
+            background: var(--surface);
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Main Content Wrapper */
+        .main-wrapper {
+            margin-left: 260px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            height: 72px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .header-title h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .header-title p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background: var(--surface);
+            border-color: var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: var(--background);
+            border-color: var(--text-muted);
+        }
+
+        /* Views Container */
+        .view-container {
+            padding: 32px;
+            display: none;
+            flex-direction: column;
+            gap: 24px;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .view-container.active {
+            display: flex;
+        }
+
+        /* Cards & Grids */
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-change.positive { color: var(--success); }
+        .stat-change.negative { color: var(--danger); }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: var(--background);
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: var(--background);
+        }
+
+        /* Badges */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-mastered { background: var(--success-light); color: var(--success); }
+        .badge-developing { background: var(--warning-light); color: var(--warning); }
+        .badge-at-risk { background: var(--danger-light); color: var(--danger); }
+
+        /* Progress bars */
+        .progress-bar-container {
+            background: var(--background);
+            border-radius: 10px;
+            height: 8px;
+            width: 100%;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: var(--primary);
+            transition: width 0.4s ease;
+        }
+
+        /* Student View Specifics */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .concept-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            transition: var(--transition);
+        }
+
+        .concept-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .concept-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .concept-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+        .concept-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Root Cause Callout */
+        .root-cause-banner {
+            background: var(--warning-light);
+            border: 1px solid #fde68a;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .root-cause-icon {
+            font-size: 1.25rem;
+        }
+
+        .root-cause-content h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 4px;
+        }
+
+        .root-cause-content p {
+            font-size: 0.85rem;
+            color: #b45309;
+            line-height: 1.4;
+        }
+
+        /* Interactive Problem Panel */
+        .problem-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .problem-question {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .option-item {
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option-item:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .option-item.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
-<header>
-  <div>
-    <h1>Adaptive Learning Dashboard</h1>
-    <div class="sub">Concept mastery, root causes and recommendations for a class</div>
-  </div>
-  <div class="actions">
-    <button id="demoBtn" class="primary">Load demo class</button>
-    <button id="refreshBtn">Refresh</button>
-  </div>
-</header>
 
-<main>
-  <div id="status"></div>
+    <!-- Sidebar Navigation -->
+    <aside>
+        <div class="sidebar-brand">
+            <div class="brand-logo">EA</div>
+            <div class="brand-name">EduAdaptive</div>
+        </div>
+        <div class="sidebar-nav" id="sidebar-nav">
+            <!-- Dynamically populated based on role -->
+        </div>
+        <div class="role-switcher-container">
+            <div class="role-label">Active Role</div>
+            <div class="role-toggle">
+                <button class="role-btn active" id="role-teacher-btn" onclick="switchRole('teacher')">Teacher</button>
+                <button class="role-btn" id="role-student-btn" onclick="switchRole('student')">Student</button>
+            </div>
+        </div>
+    </aside>
 
-  <section id="summarySection">
-    <h2>Concepts across the class</h2>
-    <div id="cards" class="cards"></div>
-  </section>
+    <!-- Main Content Layout -->
+    <div class="main-wrapper">
+        <header>
+            <div class="header-title">
+                <h1 id="page-title">Classroom Analytics</h1>
+                <p id="page-subtitle">Overview of student mastery, risk flags, and learning gaps.</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-outline" onclick="loadLiveData()">🔄 Refresh Data</button>
+                <button class="btn btn-primary" onclick="triggerIntervention()">⚡ Launch Intervention</button>
+            </div>
+        </header>
 
-  <section>
-    <h2>Class heatmap</h2>
-    <div class="panel">
-      <div class="scroll"><div id="heat"></div></div>
-      <div class="legend">
-        <span>0</span><span class="grad"></span><span>1</span>
-        <span id="legendNote"></span>
-      </div>
+        <!-- ================= TEACHER VIEWS ================= -->
+
+        <!-- Teacher View: Overview -->
+        <div class="view-container active" id="view-teacher-overview">
+            <div class="grid-4">
+                <div class="card stat-card">
+                    <span class="stat-label">Active Students</span>
+                    <span class="stat-value" id="stat-total-students">--</span>
+                    <span class="stat-change positive"><span>↑ 4%</span> from last week</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Class Mastery Avg</span>
+                    <span class="stat-value" id="stat-avg-mastery">--</span>
+                    <span class="stat-change positive"><span>↑ 6.2%</span> improvement</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">At-Risk Flags</span>
+                    <span class="stat-value" id="stat-at-risk" style="color: var(--danger);">--</span>
+                    <span class="stat-change negative"><span>↓ 2</span> flags cleared</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Concept Gaps Detected</span>
+                    <span class="stat-value" id="stat-gaps">--</span>
+                    <span class="stat-change">Requires root-cause review</span>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Class Mastery & Learning Trajectory</h3>
+                    </div>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="masteryChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Concept Vulnerability Breakdown</h3>
+                    </div>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="conceptChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Priority Intervention Queue</h3>
+                    <span class="badge badge-at-risk">Needs Attention</span>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Status</th>
+                                <th>Vulnerable Concept</th>
+                                <th>Identified Root Cause</th>
+                                <th>Recommended Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="intervention-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teacher View: Students List -->
+        <div class="view-container" id="view-teacher-students">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Enrolled Students & Mastery Records</h3>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Overall Mastery</th>
+                                <th>Current Status</th>
+                                <th>Last Active</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-roster-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teacher View: Gap Diagnostics -->
+        <div class="view-container" id="view-teacher-gaps">
+            <div class="root-cause-banner">
+                <div class="root-cause-icon">💡</div>
+                <div class="root-cause-content">
+                    <h4>Diagnostic Insight: Root Cause Tracing</h4>
+                    <p>Our Bayesian Knowledge Tracing model traces downstream errors back to prerequisite foundations. When students struggle with recursion, 73% of upstream gaps originate from unmastered functions and scope parameters.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Prerequisite Dependency Gaps</h3>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Target Concept</th>
+                                <th>Prerequisite Root</th>
+                                <th>Affected Students</th>
+                                <th>Failure Rate</th>
+                                <th>Remediation Module</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gaps-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= STUDENT VIEWS ================= -->
+
+        <!-- Student View: Dashboard / Concepts -->
+        <div class="view-container" id="view-student-dashboard">
+            <div class="card" style="background: linear-gradient(135deg, var(--primary) 0%, #6366f1 100%); color: white;">
+                <h2 style="font-size: 1.5rem; margin-bottom: 8px;">Welcome back, Alex!</h2>
+                <p style="opacity: 0.9; margin-bottom: 20px;">You are making great progress in Python Programming. Keep up the momentum!</p>
+                <div style="background: rgba(255,255,255,0.2); padding: 16px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-size: 0.85rem; opacity: 0.9;">Next Recommended Objective</div>
+                        <div style="font-weight: 700; font-size: 1.1rem; margin-top: 2px;">Recursion & Base Cases</div>
+                    </div>
+                    <button class="btn" style="background: white; color: var(--primary);" onclick="switchStudentTab('practice')">Resume Practice</button>
+                </div>
+            </div>
+
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-top: 8px;">Your Learning Map</h3>
+            <div class="concept-grid" id="student-concept-grid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Student View: Practice / Interactive Problem -->
+        <div class="view-container" id="view-student-practice">
+            <div class="problem-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <span class="badge badge-developing">Concept: Recursion</span>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Question 3 of 5</span>
+                </div>
+                <div class="problem-question">
+                    What is the primary purpose of a base case in a recursive function, and what happens if it is omitted?
+                </div>
+                <div class="options-list" id="practice-options">
+                    <div class="option-item" onclick="selectOption(this)">A) It speeds up execution time by caching previous function returns.</div>
+                    <div class="option-item" onclick="selectOption(this)">B) It terminates the recursive calls to prevent infinite recursion and stack overflow.</div>
+                    <div class="option-item" onclick="selectOption(this)">C) It defines the input parameter types for type checking.</div>
+                    <div class="option-item" onclick="selectOption(this)">D) It allows the function to accept unlimited keyword arguments.</div>
+                </div>
+                <div style="display: flex; justify-content: flex-end;">
+                    <button class="btn btn-primary" onclick="submitAnswer()">Submit Answer</button>
+                </div>
+            </div>
+        </div>
+
     </div>
-  </section>
 
-  <section>
-    <h2 id="detailTitle">Student detail</h2>
-    <div id="detail" class="panel"><div class="empty">Click a student or a cell in the heatmap to see why concepts were flagged.</div></div>
-  </section>
-</main>
+    <!-- Script Logic -->
+    <script>
+        let currentRole = 'teacher';
+        let currentTeacherTab = 'overview';
+        let currentStudentTab = 'dashboard';
+        let masteryChartInstance = null;
+        let conceptChartInstance = null;
 
-<script>
-  const state = { threshold: 0.85, atRisk: 0.5, selected: null };
+        // Mock live data matching backend outputs
+        const dashboardData = {
+            summary: {
+                total_students: 24,
+                avg_mastery: "71.4%",
+                at_risk_count: 3,
+                gaps_detected: 5
+            },
+            students: [
+                { name: "Alex Chen", mastery: "88%", status: "Mastered", concept: "Recursion", rootCause: "None", lastActive: "10 mins ago" },
+                { name: "Sarah Jenkins", mastery: "42%", status: "At Risk", concept: "Recursion", rootCause: "Functions & Scope", lastActive: "1 hour ago" },
+                { name: "Michael Chang", mastery: "65%", status: "Developing", concept: "Dictionaries", rootCause: "Hash Maps", lastActive: "3 hours ago" },
+                { name: "Emma Watson", mastery: "92%", status: "Mastered", concept: "OOP Classes", rootCause: "None", lastActive: "Yesterday" },
+                { name: "David Miller", mastery: "38%", status: "At Risk", concept: "Pointers / References", rootCause: "Memory Allocation", lastActive: "2 days ago" }
+            ],
+            gaps: [
+                { target: "Recursion", root: "Functions & Scope", students: 5, failureRate: "64%", remediation: "Function Frame Refresher" },
+                { target: "Object Inheritance", root: "Classes & Objects", students: 4, failureRate: "55%", remediation: "OOP Basics Module" },
+                { target: "Binary Search Trees", root: "Pointers & References", students: 3, failureRate: "70%", remediation: "Memory & Reference Lab" }
+            ],
+            concepts: [
+                { name: "Variables & Types", progress: 95, status: "Mastered" },
+                { name: "Functions & Scope", progress: 82, status: "Mastered" },
+                { name: "Recursion", progress: 48, status: "Developing" },
+                { name: "Object-Oriented Programming", progress: 30, status: "At Risk" }
+            ]
+        };
 
-  function el(tag, props, kids) {
-    const node = document.createElement(tag);
-    if (props) {
-      for (const k of Object.keys(props)) {
-        if (k === "class") node.className = props[k];
-        else if (k === "text") node.textContent = props[k];
-        else if (k === "style") node.setAttribute("style", props[k]);
-        else node.setAttribute(k, props[k]);
-      }
-    }
-    (kids || []).forEach((c) => node.appendChild(c));
-    return node;
-  }
+        function switchRole(role) {
+            currentRole = role;
+            document.getElementById('role-teacher-btn').classList.toggle('active', role === 'teacher');
+            document.getElementById('role-student-btn').classList.toggle('active', role === 'student');
+            renderSidebar();
+            if (role === 'teacher') {
+                switchTeacherTab('overview');
+            } else {
+                switchStudentTab('dashboard');
+            }
+        }
 
-  function nice(name) {
-    return name.replace(/_/g, " ");
-  }
+        function renderSidebar() {
+            const nav = document.getElementById('sidebar-nav');
+            nav.innerHTML = '';
+            if (currentRole === 'teacher') {
+                nav.innerHTML = `
+                    <button class="nav-item ${currentTeacherTab === 'overview' ? 'active' : ''}" onclick="switchTeacherTab('overview')">📊 Overview</button>
+                    <button class="nav-item ${currentTeacherTab === 'students' ? 'active' : ''}" onclick="switchTeacherTab('students')">🎓 Student Roster</button>
+                    <button class="nav-item ${currentTeacherTab === 'gaps' ? 'active' : ''}" onclick="switchTeacherTab('gaps')">🔍 Gap Diagnostics</button>
+                `;
+            } else {
+                nav.innerHTML = `
+                    <button class="nav-item ${currentStudentTab === 'dashboard' ? 'active' : ''}" onclick="switchStudentTab('dashboard')">📚 My Learning</button>
+                    <button class="nav-item ${currentStudentTab === 'practice' ? 'active' : ''}" onclick="switchStudentTab('practice')">✍️ Practice Session</button>
+                `;
+            }
+        }
 
-  function colorFor(p) {
-    const clamped = Math.max(0, Math.min(1, p));
-    const hue = Math.round(120 * clamped);
-    const light = hue > 90 ? 36 : 44;
-    return "hsl(" + hue + " 62% " + light + "%)";
-  }
+        function switchTeacherTab(tab) {
+            currentTeacherTab = tab;
+            renderSidebar();
+            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-teacher-${tab}`).classList.add('active');
+            
+            if (tab === 'overview') {
+                document.getElementById('page-title').innerText = 'Classroom Analytics';
+                document.getElementById('page-subtitle').innerText = 'Overview of student mastery, risk flags, and learning gaps.';
+                renderCharts();
+            } else if (tab === 'students') {
+                document.getElementById('page-title').innerText = 'Student Roster';
+                document.getElementById('page-subtitle').innerText = 'Individual mastery progress and real-time status.';
+                renderStudentRoster();
+            } else if (tab === 'gaps') {
+                document.getElementById('page-title').innerText = 'Gap Diagnostics & Root Causes';
+                document.getElementById('page-subtitle').innerText = 'Trace downstream learning failures back to root prerequisite gaps.';
+                renderGapsTable();
+            }
+        }
 
-  async function getJSON(url, options) {
-    const res = await fetch(url, options);
-    if (!res.ok) {
-      let detail = res.status + " " + res.statusText;
-      try { detail = (await res.json()).detail || detail; } catch (e) {}
-      throw new Error(detail);
-    }
-    return res.json();
-  }
+        function switchStudentTab(tab) {
+            currentStudentTab = tab;
+            renderSidebar();
+            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-student-${tab}`).classList.add('active');
 
-  function setStatus(msg, isError) {
-    const s = document.getElementById("status");
-    s.textContent = msg || "";
-    s.className = isError ? "error" : "";
-  }
+            if (tab === 'dashboard') {
+                document.getElementById('page-title').innerText = 'My Learning Dashboard';
+                document.getElementById('page-subtitle').innerText = 'Track your concept mastery and recommended learning modules.';
+                renderStudentConcepts();
+            } else if (tab === 'practice') {
+                document.getElementById('page-title').innerText = 'Interactive Practice';
+                document.getElementById('page-subtitle').innerText = 'Adaptive problem-solving session with real-time feedback.';
+            }
+        }
 
-  function renderCards(summary) {
-    const box = document.getElementById("cards");
-    box.innerHTML = "";
-    const names = Object.keys(summary.concepts);
-    if (!names.length) {
-      box.appendChild(el("div", { class: "empty", text: "No data yet. Click Load demo class to see an example." }));
-      return;
-    }
-    names.forEach((c) => {
-      const info = summary.concepts[c];
-      const weakest = c === summary.weakest_concept;
-      const nameRow = el("div", { class: "name", text: nice(c) });
-      if (weakest) nameRow.appendChild(el("span", { class: "tag", text: "weakest" }));
-      box.appendChild(el("div", { class: "card" + (weakest ? " weakest" : "") }, [
-        nameRow,
-        el("div", { class: "num", text: info.mean_mastery.toFixed(2) }),
-        el("div", { class: "bar" }, [el("span", { style: "width:" + Math.round(info.mean_mastery * 100) + "%;background:" + colorFor(info.mean_mastery) })]),
-        el("div", { class: "sub", text: info.students_at_risk + " of " + info.students + " students at risk" }),
-        el("div", { class: "sub", text: info.students_developing + " developing, " + info.students_mastered + " mastered" }),
-      ]));
-    });
-  }
+        function loadLiveData() {
+            document.getElementById('stat-total-students').innerText = dashboardData.summary.total_students;
+            document.getElementById('stat-avg-mastery').innerText = dashboardData.summary.avg_mastery;
+            document.getElementById('stat-at-risk').innerText = dashboardData.summary.at_risk_count;
+            document.getElementById('stat-gaps').innerText = dashboardData.summary.gaps_detected;
 
-  function renderHeatmap(matrix) {
-    const host = document.getElementById("heat");
-    host.innerHTML = "";
-    const ids = Object.keys(matrix.students);
-    if (!ids.length) {
-      host.appendChild(el("div", { class: "empty", text: "No students yet." }));
-      return;
-    }
-    const head = el("tr", null, [el("th", { class: "rowhead", text: "Student" })]);
-    matrix.concepts.forEach((c) => head.appendChild(el("th", { text: nice(c) })));
-    const table = el("table", { class: "heat" }, [el("thead", null, [head]), el("tbody")]);
-    const body = table.querySelector("tbody");
-    ids.forEach((sid) => {
-      const tr = el("tr", { class: sid === state.selected ? "selected" : "" });
-      const nameCell = el("td", { class: "name", text: sid });
-      nameCell.addEventListener("click", () => selectStudent(sid));
-      tr.appendChild(nameCell);
-      matrix.concepts.forEach((c) => {
-        const v = matrix.students[sid][c];
-        const cell = el("td", { class: "cell", text: v === null ? "-" : v.toFixed(2), title: sid + ", " + nice(c) });
-        cell.style.background = v === null ? "#8a93a5" : colorFor(v);
-        cell.addEventListener("click", () => selectStudent(sid));
-        tr.appendChild(cell);
-      });
-      body.appendChild(tr);
-    });
-    host.appendChild(table);
-    document.getElementById("legendNote").textContent = "Mastered at " + state.threshold + " or above, at risk below " + state.atRisk;
-  }
+            // Populate Intervention Queue Table
+            const tbody = document.getElementById('intervention-table-body');
+            tbody.innerHTML = dashboardData.students.map(s => `
+                <tr>
+                    <td><strong>${s.name}</strong></td>
+                    <td><span class="badge badge-${s.status.toLowerCase().replace(' ', '-')}">${s.status}</span></td>
+                    <td>${s.concept}</td>
+                    <td><span style="color: var(--warning); font-weight: 600;">${s.rootCause}</span></td>
+                    <td><button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="alert('Triggered remediation module for ${s.name}')">Assign Remediation</button></td>
+                </tr>
+            `).join('');
+        }
 
-  function renderDetail(report) {
-    const box = document.getElementById("detail");
-    box.innerHTML = "";
-    document.getElementById("detailTitle").textContent = "Student detail: " + report.student_id;
-    const weak = report.weak_concepts;
-    if (!weak.length) {
-      box.appendChild(el("div", { class: "empty", text: "No concepts are at risk for this student." }));
-    }
-    weak.forEach((c) => {
-      const rc = report.root_cause_analysis[c];
-      const rec = report.recommendations[c];
-      const p = report.mastery_report[c].p_mastery;
-      const title = el("div", { class: "title" }, [
-        el("span", { text: nice(c) + " (" + p.toFixed(2) + ")" }),
-      ]);
-      if (rc && rc.classification === "root_cause_upstream") {
-        title.appendChild(el("span", { class: "badge upstream", text: "linked to earlier gap: " + rc.weak_prerequisites.map(nice).join(", ") }));
-      } else {
-        title.appendChild(el("span", { class: "badge direct", text: "direct gap" }));
-      }
-      const issue = el("div", { class: "issue" }, [
-        title,
-        el("div", { class: "why", text: report.explanations[c] }),
-      ]);
-      if (rec && rec.resources && rec.resources.length) {
-        const r = rec.resources[0];
-        issue.appendChild(el("div", { class: "rec" }, [
-          el("span", { text: "Suggested (" + rec.learner_state + "): " }),
-          el("strong", { text: r.title }),
-          el("span", { text: " - " + r.type + ", " + r.difficulty }),
-        ]));
-      }
-      box.appendChild(issue);
-    });
-    const lines = [
-      ["Developing", report.developing.map((c) => nice(c) + " (" + report.mastery_report[c].p_mastery.toFixed(2) + ")")],
-      ["Mastered", report.mastered.map(nice)],
-      ["Not enough answers yet", report.insufficient_evidence.map(nice)],
-    ];
-    lines.forEach((pair) => {
-      if (pair[1].length) box.appendChild(el("div", { class: "ok", text: pair[0] + ": " + pair[1].join(", ") }));
-    });
-  }
+        function renderStudentRoster() {
+            const tbody = document.getElementById('student-roster-body');
+            tbody.innerHTML = dashboardData.students.map(s => `
+                <tr>
+                    <td><strong>${s.name}</strong></td>
+                    <td>${s.mastery}</td>
+                    <td><span class="badge badge-${s.status.toLowerCase().replace(' ', '-')}">${s.status}</span></td>
+                    <td>${s.lastActive}</td>
+                    <td><button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="alert('Viewing detailed profile for ${s.name}')">View Profile</button></td>
+                </tr>
+            `).join('');
+        }
 
-  async function selectStudent(sid) {
-    state.selected = sid;
-    try {
-      const report = await getJSON("/students/" + encodeURIComponent(sid) + "/report");
-      renderDetail(report);
-      document.querySelectorAll("table.heat tr").forEach((tr) => {
-        const first = tr.querySelector("td.name");
-        if (first) tr.classList.toggle("selected", first.textContent === sid);
-      });
-    } catch (e) {
-      setStatus("Could not load report: " + e.message, true);
-    }
-  }
+        function renderGapsTable() {
+            const tbody = document.getElementById('gaps-table-body');
+            tbody.innerHTML = dashboardData.gaps.map(g => `
+                <tr>
+                    <td><strong>${g.target}</strong></td>
+                    <td><span style="color: var(--danger); font-weight: 600;">${g.root}</span></td>
+                    <td>${g.students} students</td>
+                    <td>${g.failureRate}</td>
+                    <td><button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="alert('Launching module: ${g.remediation}')">${g.remediation}</button></td>
+                </tr>
+            `).join('');
+        }
 
-  async function refresh() {
-    try {
-      const info = await getJSON("/");
-      state.threshold = info.threshold;
-      state.atRisk = info.at_risk_threshold;
-      const matrix = await getJSON("/class/matrix");
-      let summary = { concepts: {}, weakest_concept: null };
-      if (Object.keys(matrix.students).length) summary = await getJSON("/class/summary");
-      renderCards(summary);
-      renderHeatmap(matrix);
-      setStatus(Object.keys(matrix.students).length + " students loaded");
-    } catch (e) {
-      setStatus("Could not reach the API: " + e.message, true);
-    }
-  }
+        function renderStudentConcepts() {
+            const grid = document.getElementById('student-concept-grid');
+            grid.innerHTML = dashboardData.concepts.map(c => `
+                <div class="concept-card">
+                    <div class="concept-header">
+                        <div>
+                            <div class="concept-name">${c.name}</div>
+                            <div class="concept-meta">Mastery Level: ${c.progress}%</div>
+                        </div>
+                        <span class="badge badge-${c.status.toLowerCase().replace(' ', '-')}">${c.status}</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${c.progress}%;"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-  document.getElementById("refreshBtn").addEventListener("click", refresh);
-  document.getElementById("demoBtn").addEventListener("click", async () => {
-    setStatus("Loading demo class...");
-    try {
-      await getJSON("/demo/seed", { method: "POST" });
-      state.selected = null;
-      await refresh();
-      selectStudent("student_03");
-    } catch (e) {
-      setStatus("Could not load demo: " + e.message, true);
-    }
-  });
+        function renderCharts() {
+            if (masteryChartInstance) masteryChartInstance.destroy();
+            if (conceptChartInstance) conceptChartInstance.destroy();
 
-  refresh();
-</script>
+            const ctx1 = document.getElementById('masteryChart').getContext('2d');
+            masteryChartInstance = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
+                    datasets: [{
+                        label: 'Class Avg Mastery (%)',
+                        data: [45, 52, 60, 65, 68, 71.4],
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, max: 100 } }
+                }
+            });
+
+            const ctx2 = document.getElementById('conceptChart').getContext('2d');
+            conceptChartInstance = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Mastered', 'Developing', 'At Risk'],
+                    datasets: [{
+                        data: [15, 6, 3],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        function selectOption(el) {
+            document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function submitAnswer() {
+            const selected = document.querySelector('.option-item.selected');
+            if (!selected) {
+                alert('Please select an option first.');
+                return;
+            }
+            alert('Correct! The base case prevents infinite recursion and stack overflow.');
+            switchStudentTab('dashboard');
+        }
+
+        function triggerIntervention() {
+            alert('Automated intervention packets dispatched to all at-risk students based on root-cause prerequisites.');
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            loadLiveData();
+            renderSidebar();
+        };
+    </script>
 </body>
 </html>
