@@ -19,6 +19,9 @@ def explain_concept_flag(concept: str, tracker, root_cause_info: dict, threshold
     if info and info["classification"] == "root_cause_upstream":
         prereq_list = ", ".join(info["weak_prerequisites"])
         reasons.append(f"linked to unresolved prerequisite gap(s) in: {prereq_list}")
+        roots = info.get("root_causes", [])
+        if roots and roots != info["weak_prerequisites"]:
+            reasons.append(f"the underlying root cause appears to be: {', '.join(roots)}")
 
     return f"Flagged '{concept}' because " + "; ".join(reasons) + "."
 

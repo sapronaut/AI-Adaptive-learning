@@ -1,4 +1,3 @@
-
 from bkt_model import BKTParams
 
 CONCEPTS = ["functions", "loops", "arrays", "recursion", "recursion_base_case"]
@@ -29,4 +28,4 @@ MASTERY_THRESHOLD = 0.85
 AT_RISK_THRESHOLD = 0.5
 MIN_EVIDENCE = 2
 
-MODEL_PARAMS = BKTParams(mode="likelihood", k_time=2.0, k_attempts=0.5, k_difficulty=1.0)
+MODEL_PARAMS = BKTParams(mode="likelihood", k_time=0.0, k_attempts=0.0, k_difficulty=1.0)
