@@ -1,0 +1,497 @@
+{
+  "cleaning": {
+    "raw_rows": 525534,
+    "after_missing_skill": 446844,
+    "after_invalid_time": 442160,
+    "after_duplicates": 320137
+  },
+  "skills": [
+    "Equation Solving Two or Fewer Steps",
+    "Conversion of Fraction Decimals Percents",
+    "Addition and Subtraction Integers",
+    "Addition and Subtraction Fractions",
+    "Percent Of",
+    "Proportion",
+    "Ordering Fractions",
+    "Probability of Two Distinct Events"
+  ],
+  "sequences": {
+    "Equation Solving Two or Fewer Steps": 857,
+    "Conversion of Fraction Decimals Percents": 1121,
+    "Addition and Subtraction Integers": 790,
+    "Addition and Subtraction Fractions": 978,
+    "Percent Of": 888,
+    "Proportion": 608,
+    "Ordering Fractions": 805,
+    "Probability of Two Distinct Events": 360
+  },
+  "responses_used": 97644,
+  "splits": [
+    {
+      "seed": 0,
+      "k_fitted": {
+        "Observation model, fitted (all three)": [
+          -0.21897077049848443,
+          0.09982514431531692,
+          2.611219770400356
+        ],
+        "  time only": [
+          -0.20811421918040146,
+          0.0,
+          0.0
+        ],
+        "  attempts only": [
+          0.0,
+          0.07259941576762013,
+          0.0
+        ],
+        "  difficulty only": [
+          0.0,
+          0.0,
+          2.609860895188271
+        ],
+        "  without time": [
+          0.0,
+          0.07894741688104306,
+          2.6132334775478006
+        ],
+        "  without attempts": [
+          -0.20204780264600183,
+          0.0,
+          2.6033551427631934
+        ],
+        "  without difficulty": [
+          -0.22607315900334812,
+          0.08507787729315512,
+          0.0
+        ]
+      },
+      "models": {
+        "Skill average (no learning)": {
+          "auc": 0.5825891449072577,
+          "rmse": 0.4738184449362749,
+          "accuracy": 0.6445532849180882,
+          "responses": 29605
+        },
+        "Standard BKT (fitted)": {
+          "auc": 0.6998836716640168,
+          "rmse": 0.44979628572225916,
+          "accuracy": 0.6878230028711366,
+          "responses": 29605
+        },
+        "Dampening weights (Step 1 design)": {
+          "auc": 0.699187065103635,
+          "rmse": 0.4497457613100482,
+          "accuracy": 0.6897145752406688,
+          "responses": 29605
+        },
+        "Observation model, hand-set k": {
+          "auc": 0.6537762775627872,
+          "rmse": 0.46883678373180604,
+          "accuracy": 0.640601249788887,
+          "responses": 29605
+        },
+        "Observation model, fitted (all three)": {
+          "auc": 0.7403800688135255,
+          "rmse": 0.4376660184258957,
+          "accuracy": 0.7109609863198784,
+          "responses": 29605
+        },
+        "  time only": {
+          "auc": 0.6987561982588499,
+          "rmse": 0.449671815001532,
+          "accuracy": 0.6899510217868603,
+          "responses": 29605
+        },
+        "  attempts only": {
+          "auc": 0.7009438911977398,
+          "rmse": 0.4496121522081798,
+          "accuracy": 0.6886336767437933,
+          "responses": 29605
+        },
+        "  difficulty only": {
+          "auc": 0.7378123939845038,
+          "rmse": 0.43866747613718826,
+          "accuracy": 0.7078534031413612,
+          "responses": 29605
+        },
+        "  without time": {
+          "auc": 0.7393842893168169,
+          "rmse": 0.4382412242125073,
+          "accuracy": 0.7089343016382368,
+          "responses": 29605
+        },
+        "  without attempts": {
+          "auc": 0.7384431126124851,
+          "rmse": 0.43810290582921807,
+          "accuracy": 0.7089005235602094,
+          "responses": 29605
+        },
+        "  without difficulty": {
+          "auc": 0.7004016705186148,
+          "rmse": 0.4494581594504023,
+          "accuracy": 0.6889714575240669,
+          "responses": 29605
+        }
+      },
+      "per_skill": {
+        "Equation Solving Two or Fewer Steps": {
+          "standard": 0.6473892601700276,
+          "observation_fitted": 0.7193317537253932,
+          "test_responses": 6925
+        },
+        "Conversion of Fraction Decimals Percents": {
+          "standard": 0.6592030776662082,
+          "observation_fitted": 0.7593471999357864,
+          "test_responses": 5532
+        },
+        "Addition and Subtraction Integers": {
+          "standard": 0.7083182732263237,
+          "observation_fitted": 0.7133669466835825,
+          "test_responses": 4093
+        },
+        "Addition and Subtraction Fractions": {
+          "standard": 0.7607349022467813,
+          "observation_fitted": 0.7509764101988724,
+          "test_responses": 3470
+        },
+        "Percent Of": {
+          "standard": 0.6937574156192197,
+          "observation_fitted": 0.7021640379068228,
+          "test_responses": 2647
+        },
+        "Proportion": {
+          "standard": 0.672318096927643,
+          "observation_fitted": 0.693308856277766,
+          "test_responses": 2426
+        },
+        "Ordering Fractions": {
+          "standard": 0.7018647932911579,
+          "observation_fitted": 0.7121849975829673,
+          "test_responses": 2432
+        },
+        "Probability of Two Distinct Events": {
+          "standard": 0.5947069280305449,
+          "observation_fitted": 0.7062515789269127,
+          "test_responses": 2080
+        }
+      },
+      "auc_gain_fitted_vs_standard": {
+        "mean": 0.04026784396465738,
+        "ci95_low": 0.03333286437854516,
+        "ci95_high": 0.045347541517465284
+      }
+    },
+    {
+      "seed": 1,
+      "k_fitted": {
+        "Observation model, fitted (all three)": [
+          -0.2161329834781492,
+          0.09574780702369387,
+          2.6824895069987753
+        ],
+        "  time only": [
+          -0.1674228991382339,
+          0.0,
+          0.0
+        ],
+        "  attempts only": [
+          0.0,
+          0.0660652787604742,
+          0.0
+        ],
+        "  difficulty only": [
+          0.0,
+          0.0,
+          2.6729158100978463
+        ],
+        "  without time": [
+          0.0,
+          0.09588496987583635,
+          2.688830063875671
+        ],
+        "  without attempts": [
+          -0.19977463758364306,
+          0.0,
+          2.6698964098479485
+        ],
+        "  without difficulty": [
+          -0.1881729866285648,
+          0.08796171344815089,
+          0.0
+        ]
+      },
+      "models": {
+        "Skill average (no learning)": {
+          "auc": 0.5844184161154267,
+          "rmse": 0.470983741403647,
+          "accuracy": 0.6553567825677584,
+          "responses": 29738
+        },
+        "Standard BKT (fitted)": {
+          "auc": 0.6980910631094408,
+          "rmse": 0.4475834603340571,
+          "accuracy": 0.700450601923465,
+          "responses": 29738
+        },
+        "Dampening weights (Step 1 design)": {
+          "auc": 0.6975933570764046,
+          "rmse": 0.44739359765046344,
+          "accuracy": 0.7031743896697827,
+          "responses": 29738
+        },
+        "Observation model, hand-set k": {
+          "auc": 0.6578379756915615,
+          "rmse": 0.4653458244548501,
+          "accuracy": 0.6558611877059655,
+          "responses": 29738
+        },
+        "Observation model, fitted (all three)": {
+          "auc": 0.7456709220726748,
+          "rmse": 0.43346506042762384,
+          "accuracy": 0.719483489138476,
+          "responses": 29738
+        },
+        "  time only": {
+          "auc": 0.6987410092502284,
+          "rmse": 0.44693459478602715,
+          "accuracy": 0.7029053735960724,
+          "responses": 29738
+        },
+        "  attempts only": {
+          "auc": 0.6995405506167239,
+          "rmse": 0.44733998628129246,
+          "accuracy": 0.7016611742551617,
+          "responses": 29738
+        },
+        "  difficulty only": {
+          "auc": 0.7432260200088464,
+          "rmse": 0.4346345252850837,
+          "accuracy": 0.7181720357791378,
+          "responses": 29738
+        },
+        "  without time": {
+          "auc": 0.744196833675726,
+          "rmse": 0.4343857242502119,
+          "accuracy": 0.7185083058712758,
+          "responses": 29738
+        },
+        "  without attempts": {
+          "auc": 0.7442169043954886,
+          "rmse": 0.4339619853424905,
+          "accuracy": 0.7177685116685723,
+          "responses": 29738
+        },
+        "  without difficulty": {
+          "auc": 0.7010397230550488,
+          "rmse": 0.44665553247986756,
+          "accuracy": 0.7024345954670792,
+          "responses": 29738
+        }
+      },
+      "per_skill": {
+        "Equation Solving Two or Fewer Steps": {
+          "standard": 0.6517758282860083,
+          "observation_fitted": 0.7285133846132159,
+          "test_responses": 7055
+        },
+        "Conversion of Fraction Decimals Percents": {
+          "standard": 0.6736301702661476,
+          "observation_fitted": 0.7747060391182204,
+          "test_responses": 5454
+        },
+        "Addition and Subtraction Integers": {
+          "standard": 0.7035358339405352,
+          "observation_fitted": 0.7187284596555094,
+          "test_responses": 3568
+        },
+        "Addition and Subtraction Fractions": {
+          "standard": 0.7218938578540292,
+          "observation_fitted": 0.7279245216196948,
+          "test_responses": 3489
+        },
+        "Percent Of": {
+          "standard": 0.6823804480379906,
+          "observation_fitted": 0.6939139873831227,
+          "test_responses": 2797
+        },
+        "Proportion": {
+          "standard": 0.7079735254175592,
+          "observation_fitted": 0.7233427135396979,
+          "test_responses": 2512
+        },
+        "Ordering Fractions": {
+          "standard": 0.6989060973533023,
+          "observation_fitted": 0.7060731538992409,
+          "test_responses": 2609
+        },
+        "Probability of Two Distinct Events": {
+          "standard": 0.6194233117310041,
+          "observation_fitted": 0.7438801950760581,
+          "test_responses": 2254
+        }
+      },
+      "auc_gain_fitted_vs_standard": {
+        "mean": 0.047775778005021426,
+        "ci95_low": 0.042136424677139475,
+        "ci95_high": 0.05266815568391186
+      }
+    },
+    {
+      "seed": 2,
+      "k_fitted": {
+        "Observation model, fitted (all three)": [
+          -0.1870115521159477,
+          0.09130676151148359,
+          2.587813295000211
+        ],
+        "  time only": [
+          -0.15106591793554153,
+          0.0,
+          0.0
+        ],
+        "  attempts only": [
+          0.0,
+          0.0636932096969772,
+          0.0
+        ],
+        "  difficulty only": [
+          0.0,
+          0.0,
+          2.5813240822332815
+        ],
+        "  without time": [
+          0.0,
+          0.0768695317986654,
+          2.58766597702156
+        ],
+        "  without attempts": [
+          -0.15311790484083074,
+          0.0,
+          2.582250545405967
+        ],
+        "  without difficulty": [
+          -0.17533245513203782,
+          0.07308103166479996,
+          0.0
+        ]
+      },
+      "models": {
+        "Skill average (no learning)": {
+          "auc": 0.5727579926678772,
+          "rmse": 0.4753568444954971,
+          "accuracy": 0.6417097456892066,
+          "responses": 28823
+        },
+        "Standard BKT (fitted)": {
+          "auc": 0.710291395102982,
+          "rmse": 0.4474142580759996,
+          "accuracy": 0.6954168545952885,
+          "responses": 28823
+        },
+        "Dampening weights (Step 1 design)": {
+          "auc": 0.7092726975146835,
+          "rmse": 0.44747292757751983,
+          "accuracy": 0.6979842486902821,
+          "responses": 28823
+        },
+        "Observation model, hand-set k": {
+          "auc": 0.6497627898560728,
+          "rmse": 0.47058652039909515,
+          "accuracy": 0.645422058772508,
+          "responses": 28823
+        },
+        "Observation model, fitted (all three)": {
+          "auc": 0.7531030793498704,
+          "rmse": 0.433593202174716,
+          "accuracy": 0.7174825660063144,
+          "responses": 28823
+        },
+        "  time only": {
+          "auc": 0.7109012200480639,
+          "rmse": 0.4468464411896028,
+          "accuracy": 0.697325052909135,
+          "responses": 28823
+        },
+        "  attempts only": {
+          "auc": 0.7115269327502204,
+          "rmse": 0.44709627747192887,
+          "accuracy": 0.6960413558616383,
+          "responses": 28823
+        },
+        "  difficulty only": {
+          "auc": 0.749911552665639,
+          "rmse": 0.435028049909442,
+          "accuracy": 0.7143947541893627,
+          "responses": 28823
+        },
+        "  without time": {
+          "auc": 0.7511328250351882,
+          "rmse": 0.4346717033623977,
+          "accuracy": 0.714776393852132,
+          "responses": 28823
+        },
+        "  without attempts": {
+          "auc": 0.7518175871038378,
+          "rmse": 0.4340192396487239,
+          "accuracy": 0.7156437567220623,
+          "responses": 28823
+        },
+        "  without difficulty": {
+          "auc": 0.7129660170987276,
+          "rmse": 0.44652593087392595,
+          "accuracy": 0.6969434132463658,
+          "responses": 28823
+        }
+      },
+      "per_skill": {
+        "Equation Solving Two or Fewer Steps": {
+          "standard": 0.6756472303863662,
+          "observation_fitted": 0.7479488896098575,
+          "test_responses": 6912
+        },
+        "Conversion of Fraction Decimals Percents": {
+          "standard": 0.6683375377454082,
+          "observation_fitted": 0.7679921818379188,
+          "test_responses": 5499
+        },
+        "Addition and Subtraction Integers": {
+          "standard": 0.6986182526381373,
+          "observation_fitted": 0.6996640264501647,
+          "test_responses": 3381
+        },
+        "Addition and Subtraction Fractions": {
+          "standard": 0.7945112550107924,
+          "observation_fitted": 0.7929329443297991,
+          "test_responses": 3031
+        },
+        "Percent Of": {
+          "standard": 0.6854347874966057,
+          "observation_fitted": 0.6917102373717021,
+          "test_responses": 2698
+        },
+        "Proportion": {
+          "standard": 0.7144417399987518,
+          "observation_fitted": 0.72720464332522,
+          "test_responses": 2489
+        },
+        "Ordering Fractions": {
+          "standard": 0.7222579303391771,
+          "observation_fitted": 0.7257921157089903,
+          "test_responses": 2538
+        },
+        "Probability of Two Distinct Events": {
+          "standard": 0.6008953146745013,
+          "observation_fitted": 0.7295341734962115,
+          "test_responses": 2275
+        }
+      },
+      "auc_gain_fitted_vs_standard": {
+        "mean": 0.04248523423418253,
+        "ci95_low": 0.0363582357931625,
+        "ci95_high": 0.048291202750382775
+      }
+    }
+  ],
+  "elapsed_seconds": 241.8
+}
