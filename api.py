@@ -2,6 +2,7 @@ import random
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from bkt_model import StudentModel, ResponseInput
@@ -12,6 +13,15 @@ import config
 from status import classify
 
 app = FastAPI(title="Adaptive Learning and Concept Gap Analyzer")
+
+# Enable CORS for frontend integration (Vercel deployment)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins; can be restricted to your Vercel domain if desired
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 students: dict[str, StudentModel] = {}
 graph = PrerequisiteGraph(config.PREREQ_EDGES)
