@@ -157,6 +157,8 @@
 </main>
 
 <script>
+  // Point to your live Render backend URL
+  const API_BASE_URL = "https://ai-adaptive-learning-cqd9.onrender.com";
   const state = { threshold: 0.85, atRisk: 0.5, selected: null };
 
   function el(tag, props, kids) {
@@ -185,7 +187,7 @@
   }
 
   async function getJSON(url, options) {
-    const res = await fetch(url, options);
+    const res = await fetch(API_BASE_URL + url, options);
     if (!res.ok) {
       let detail = res.status + " " + res.statusText;
       try { detail = (await res.json()).detail || detail; } catch (e) {}
